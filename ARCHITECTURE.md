@@ -2,22 +2,14 @@
 
 ## Stack Tecnológico
 
-### Android Client (Mobile)
-- **Lenguaje:** Kotlin
-- **UI:** Jetpack Compose (Material 3)
-- **Arquitectura:** Clean Architecture + MVVM
-- **Inyección de Dependencias:** Hilt
-- **Navegación:** Jetpack Navigation Compose
-- **Conectividad / Red:** Retrofit + OkHttp
+### 1. Aplicación Móvil
+- **Entorno: Android Studio.
+- **Lenguaje: Java (ya lo conoces y manejas).
+- **UI: Vistas tradicionales en XML (nada de Compose por ahora si no lo dominas).
+- **Base de Datos Local: SQLite3 (directo y sencillo para guardar datos en el dispositivo).
 
-### Backend API
-- **Framework:** FastAPI (Python)
-- **ORM:** SQLAlchemy (Async)
-- **Migraciones:** Alembic
-- **Autenticación:** OAuth2 / JWT (JSON Web Tokens)
-- **Documentación API:** OpenAPI / Swagger UI
+### 2. Backend (Servidor) y Base de Datos
+- **Lenguaje Backend: Python.
+- **Framework: FastAPI (súper ligero, rápido y escrito en Python).
+- **Base de Datos Remota: Firebase (para autenticación de usuarios y guardar datos en la nube sin complicarte instalando servidores) o SQL Developer / SQLite.
 
-### Base de Datos e Infraestructura
-- **Base de Datos Relacional:** PostgreSQL
-- **Notificaciones Push:** Firebase Cloud Messaging (FCM)
-- **Contenedores & Proxy:** Docker, Docker Compose, Nginx
