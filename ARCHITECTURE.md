@@ -12,4 +12,3 @@
 - **Lenguaje Backend: Python.
 - **Framework: FastAPI (súper ligero, rápido y escrito en Python).
 - **Base de Datos Remota: Firebase (para autenticación de usuarios y guardar datos en la nube sin complicarte instalando servidores) o SQL Developer / SQLite.
-
