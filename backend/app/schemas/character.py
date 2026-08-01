@@ -1,11 +1,8 @@
-from app.services.gamification import level_player, exp_residue, XP_FOR_LEVEL, XP_TOTAL
-name = "Player1"
-atributes = {
-    "username": name,
-    "level": level_player(XP_TOTAL),
-    "exp_residue" : exp_residue(XP_TOTAL),
-    "next_level_exp": XP_FOR_LEVEL,
-    "total_exp" : XP_TOTAL
-}
+from pydantic import BaseModel #Para validacion de datos
 
-print(atributes)
+class CharacterResponse(BaseModel):
+    username: str
+    level: int
+    total_exp: int
+    exp_residue: int
+    next_level_exp: int

@@ -1,3 +1,4 @@
+XP_TOTAL = 450
 XP_FOR_LEVEL = 200
 XP_TOTAL = 450
 def level_player(xp: int):
