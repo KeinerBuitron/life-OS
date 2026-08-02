@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from app.schemas.character import CharacterResponse
 from app.services.gamification import level_player, exp_residue, XP_FOR_LEVEL
 from app.database import get_db_connection
@@ -12,10 +12,14 @@ def get_character_profile():
     character = conn.execute("SELECT * FROM character WHERE id = 1").fetchone()
     conn.close()
 
-    # Si no hay personaje en la DB aún, asignamos 0 XP por defecto
-    total_exp = character["total_exp"] if character else 0
-    username = character["username"] if character else "Random"
+    # Si por alguna razón la tabla está vacía, lanzamos un error 404
+    if not character:
+        raise HTTPException(status_code=404, detail="Personaje no encontrado en la base de datos")
 
+    # 3. Extraemos los valores guardados en SQLite
+    username = character["username"]
+    total_exp = character["total_exp"]
+    
     return CharacterResponse(
         username=username,
         level=level_player(total_exp), # Tu función de gamificación
