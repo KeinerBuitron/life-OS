@@ -1,4 +1,11 @@
 # Backlog
+- [ ] Dificultad o Tipo: Misiones Diarias (Dailies), Hábitos o Misiones Principales (Main Quests).
+
+- [ ] Rachas (Streaks): Si el personaje completa al menos una misión al día, aumenta su racha.
+
+- [ ] Historial/Registro: Guardar cuándo fue la última vez que completó una misión.
+
+- [ ] Configurar CORS (Cross-Origin Resource Sharing) en FastAPI para permitir que un frontend se conecte a tu API sin bloqueos de seguridad.
 
 - [ ] Diseñar logo
 
@@ -21,6 +28,9 @@
 - [ ] Documento del proyecto
 
 # Finalizado
+
+- [x] Filtros en el GET: Poder consultar solo misiones pendientes (state = 0) o completadas (state = 1).
+
 - [x] Crear app/routers/quests.py con los endpoints POST para crear y completar misiones.
 
 - [x] Incluir el nuevo router en main.py.

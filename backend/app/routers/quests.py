@@ -1,44 +1,110 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from datetime import date
 from app.schemas.quest import QuestCreate, QuestResponse
-from fastapi import HTTPException  
+from app.database import get_db_connection # IMPORTAMOS LA CONEXIÓN
 
 router = APIRouter(prefix="/quests", tags=["Quests"])
 
-quests_db = []
-
+# --- POST: CREAR MISIÓN ---
 @router.post("/", response_model=QuestResponse)
 def create_quest(quest: QuestCreate):
+    today_str = date.today().isoformat() # Fecha actual dinámica
     
-        new_id = len(quests_db) + 1
-        new_quest = QuestResponse(
-            id = new_id,
-            state = False,
-            date = "2024-06-01",
-            title = quest.title,
-            description = quest.description,
-            experience = quest.experience,
-    )
-        quests_db.append(new_quest)
-        return new_quest
+    # 1. Abrimos conexión a la base de datos
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
+    # 2. Reemplazamos quests_db.append() por un INSERT en SQLite
+    cursor.execute(
+        "INSERT INTO quests (title, description, experience, state, date) VALUES (?, ?, ?, ?, ?)",
+        (quest.title, quest.description, quest.experience, False, today_str)
+    )
+    conn.commit() # Guardamos los cambios en el archivo .db
+    
+    # 3. SQLite nos da el ID generado automáticamente (reemplaza a len(quests_db) + 1)
+    new_id = cursor.lastrowid
+    conn.close() # Cerramos conexión
+
+    # 4. Devolvemos la respuesta tal como lo hacías antes
+    return QuestResponse(
+        id=new_id,
+        state=False,
+        date=today_str,
+        title=quest.title,
+        description=quest.description,
+        experience=quest.experience
+    )
+
+
+# --- GET: OBTENER TODAS LAS MISIONES ---
 @router.get("/", response_model=list[QuestResponse])
 def get_quests():
-    return quests_db
+    conn = get_db_connection()
+    
+    # En lugar de retornar quests_db, consultamos todas las filas
+    rows = conn.execute("SELECT * FROM quests").fetchall()
+    conn.close()
+    
+    # Convertimos cada fila de SQLite a un diccionario para que FastAPI lo responda
+    return [dict(row) for row in rows]
 
+
+# --- PATCH: EDITAR MISIÓN ---
 @router.patch("/{quest_id}", response_model=QuestResponse)
 def update_quest(quest_id: int, quest: QuestCreate):
-    for existing_quest in quests_db:
-        if existing_quest.id == quest_id:
-            existing_quest.title = quest.title
-            existing_quest.description = quest.description
-            existing_quest.experience = quest.experience
-            return existing_quest
-    raise HTTPException(status_code=404, detail="Quest not found")
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
+    # 1. Buscamos si la misión existe (reemplaza al for loop)
+    existing_quest = cursor.execute("SELECT * FROM quests WHERE id = ?", (quest_id,)).fetchone()
+    if not existing_quest:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Quest not found")
+
+    # 2. Actualizamos los campos en la base de datos
+    cursor.execute(
+        "UPDATE quests SET title = ?, description = ?, experience = ? WHERE id = ?",
+        (quest.title, quest.description, quest.experience, quest_id)
+    )
+    conn.commit()
+
+    # 3. Consultamos la misión ya actualizada para devolverla
+    updated = cursor.execute("SELECT * FROM quests WHERE id = ?", (quest_id,)).fetchone()
+    conn.close()
+
+    return dict(updated)
+
+
+# --- PATCH: COMPLETAR MISIÓN Y SUMAR EXP ---
 @router.patch("/{quest_id}/complete", response_model=QuestResponse)
 def complete_quest(quest_id: int):
-    for existing_quest in quests_db:
-        if existing_quest.id == quest_id:
-            existing_quest.state = True
-            return existing_quest
-    raise HTTPException(status_code=404, detail="Quest not found")
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # 1. Buscamos la misión
+    existing_quest = cursor.execute("SELECT * FROM quests WHERE id = ?", (quest_id,)).fetchone()
+    if not existing_quest:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Quest not found")
+
+    # 2. NUEVA VALIDACIÓN: Si ya estaba completada (state == 1 / True), no hacemos nada más
+    if existing_quest["state"]:
+        conn.close()
+        raise HTTPException(status_code=400, detail="La misión ya había sido completada")
+
+    # 3. Marcamos la misión como completada (state = 1)
+    cursor.execute("UPDATE quests SET state = 1 WHERE id = ?", (quest_id,))
+
+    # 4. NUEVA LÍNEA CLAVE: Sumamos la experiencia de esta misión al personaje (id=1)
+    cursor.execute(
+        "UPDATE character SET total_exp = total_exp + ? WHERE id = 1",
+        (existing_quest["experience"],)
+    )
+
+    conn.commit() # Guardamos ambas actualizaciones juntas en una sola transacción
+
+    # 5. Consultamos la misión actualizada
+    updated = cursor.execute("SELECT * FROM quests WHERE id = ?", (quest_id,)).fetchone()
+    conn.close()
+
+    return dict(updated)
