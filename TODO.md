@@ -56,16 +56,19 @@
 - [x] Definir visión
 - [x] Elegir nombre
 
-   ┌─────────────────────────────────────────────────────────┐
-   │                       LIFE OS API                       │
-   └─────────────────────────────────────────────────────────┘
-                                │
-        ┌───────────────────────┴───────────────────────┐
-        ▼                                               ▼
-  [ /character ]                                  [ /quests ]
-  • GET /profile                                  • POST /
-    (Cálculo de XP y Nivel)                         (Creación de misiones)
-                                                  • GET /
-                                                    (Listar misiones)
-                                                  • PATCH /{quest_id}/complete
-                                                    (Completar misión)
+   ┌──────────────────────────────────────────────────────────────┐
+   │                         LIFE OS API                          │
+   └──────────────────────────────────────────────────────────────┘
+                                  │
+         ┌────────────────────────┴────────────────────────┐
+         ▼                                                 ▼
+   [ /character ]                                   [ /quests ]
+   • GET /profile                                   • POST / (Crear)
+     (Lee total_exp desde DB                        • GET / (Listar / Filtro)
+      y calcula nivel/residuo)                      • PATCH /{id} (Editar)
+                                                    • PATCH /{id}/complete
+                                                      (Completa + Suma XP)
+                                                           │
+                                                           ▼
+                                                    [ SQLite DB ]
+                                                 (persistencia real)

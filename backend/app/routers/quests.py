@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from datetime import date
+from typing import Optional
 from app.schemas.quest import QuestCreate, QuestResponse
 from app.database import get_db_connection # IMPORTAMOS LA CONEXIÓN
 
@@ -36,16 +37,22 @@ def create_quest(quest: QuestCreate):
     )
 
 
-# --- GET: OBTENER TODAS LAS MISIONES ---
+# --- GET: OBTENER MISIONES (CON FILTRO OPCIONAL) ---
 @router.get("/", response_model=list[QuestResponse])
-def get_quests():
+def get_quests(completed: Optional[bool] = Query(None, description="Filtrar por estado: true para completadas, false para pendientes")):
     conn = get_db_connection()
     
-    # En lugar de retornar quests_db, consultamos todas las filas
-    rows = conn.execute("SELECT * FROM quests").fetchall()
+    # 1. Si no nos pasan el parámetro completed, traemos todas las misiones
+    if completed is None:
+        rows = conn.execute("SELECT * FROM quests").fetchall()
+    else:
+        # 2. Convertimos el booleano (True/False) al entero de SQLite (1/0)
+        state_value = 1 if completed else 0
+        rows = conn.execute("SELECT * FROM quests WHERE state = ?", (state_value,)).fetchall()
+        
     conn.close()
     
-    # Convertimos cada fila de SQLite a un diccionario para que FastAPI lo responda
+    # Convertimos cada fila a diccionario para la respuesta JSON
     return [dict(row) for row in rows]
 
 
