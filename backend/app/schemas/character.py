@@ -6,3 +6,5 @@ class CharacterResponse(BaseModel):
     total_exp: int
     exp_residue: int
     next_level_exp: int
+    current_streak: int
+    max_streak: int

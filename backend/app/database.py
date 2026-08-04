@@ -16,8 +16,11 @@ def init_db():
         CREATE TABLE IF NOT EXISTS character (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL,
-            total_exp INTEGER NOT NULL DEFAULT 0
-        );
+            total_exp INTEGER NOT NULL DEFAULT 0,
+            current_streak INTEGER NOT NULL DEFAULT 0,
+            max_streak INTEGER NOT NULL DEFAULT 0,
+            last_completed_date TEXT 
+        );  
     """)
 
     # Tabla de Misiones
@@ -35,7 +38,11 @@ def init_db():
     # Crear personaje inicial si la tabla está vacía
     cursor.execute("SELECT COUNT(*) FROM character")
     if cursor.fetchone()[0] == 0:
-        cursor.execute("INSERT INTO character (username, total_exp) VALUES (?, ?)", ("Keiner", 0))
-
+        #Pasamos los valores iniciales para las rachas (0, 0, None)
+        cursor.execute("""
+            INSERT OR IGNORE INTO character (id, username, total_exp, current_streak, max_streak, last_completed_date)
+            VALUES (1, 'Hero', 0, 0, 0, NULL)
+        """)
+        
     conn.commit()
     conn.close()

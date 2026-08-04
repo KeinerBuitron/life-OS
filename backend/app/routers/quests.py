@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Query
 from datetime import date
 from typing import Optional
 from app.schemas.quest import QuestCreate, QuestResponse
+from app.services.streak import calculate_new_streak
 from app.database import get_db_connection # IMPORTAMOS LA CONEXIÓN
 
 router = APIRouter(prefix="/quests", tags=["Quests"])
@@ -9,32 +10,31 @@ router = APIRouter(prefix="/quests", tags=["Quests"])
 # --- POST: CREAR MISIÓN ---
 @router.post("/", response_model=QuestResponse)
 def create_quest(quest: QuestCreate):
-    today_str = date.today().isoformat() # Fecha actual dinámica
-    
-    # 1. Abrimos conexión a la base de datos
     conn = get_db_connection()
     cursor = conn.cursor()
-
-    # 2. Reemplazamos quests_db.append() por un INSERT en SQLite
+    
+    today_str = date.today().isoformat()
+    
+    # 1. Insertamos y le pedimos a SQLite que nos devuelva la fila creada inmediatamente
     cursor.execute(
-        "INSERT INTO quests (title, description, experience, state, date) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO quests (title, description, experience, state, date) VALUES (?, ?, ?, ?, ?) RETURNING *",
         (quest.title, quest.description, quest.experience, False, today_str)
     )
-    conn.commit() # Guardamos los cambios en el archivo .db
     
-    # 3. SQLite nos da el ID generado automáticamente (reemplaza a len(quests_db) + 1)
-    new_id = cursor.lastrowid
-    conn.close() # Cerramos conexión
-
-    # 4. Devolvemos la respuesta tal como lo hacías antes
-    return QuestResponse(
-        id=new_id,
-        state=False,
-        date=today_str,
-        title=quest.title,
-        description=quest.description,
-        experience=quest.experience
-    )
+    # 2. Leemos la fila recién creada
+    new_quest = cursor.fetchone()
+    
+    # 3. Guardamos los cambios en la base de datos
+    conn.commit()
+    
+    # 4. Cerramos la conexión
+    conn.close()
+    
+    # 5. Si por algún motivo no la creó, lanzamos un error 500
+    if not new_quest:
+        raise HTTPException(status_code=500, detail="No se pudo crear la misión")
+        
+    return dict(new_quest)
 
 
 # --- GET: OBTENER MISIONES (CON FILTRO OPCIONAL) ---
@@ -107,6 +107,22 @@ def complete_quest(quest_id: int):
         "UPDATE character SET total_exp = total_exp + ? WHERE id = 1",
         (existing_quest["experience"],)
     )
+
+    # 4. NUEVO: Obtenemos los datos actuales del personaje para calcular la racha
+    character = cursor.execute("SELECT * FROM character WHERE id = 1").fetchone()
+    
+    new_streak, new_max, today_str = calculate_new_streak(
+        last_completed_str=character["last_completed_date"],
+        current_streak=character["current_streak"],
+        max_streak=character["max_streak"]
+    )
+
+    # 5. Actualizamos los datos de la racha del personaje en SQLite
+    cursor.execute("""
+        UPDATE character 
+        SET current_streak = ?, max_streak = ?, last_completed_date = ? 
+        WHERE id = 1
+    """, (new_streak, new_max, today_str))
 
     conn.commit() # Guardamos ambas actualizaciones juntas en una sola transacción
 

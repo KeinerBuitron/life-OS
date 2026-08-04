@@ -19,11 +19,15 @@ def get_character_profile():
     # 3. Extraemos los valores guardados en SQLite
     username = character["username"]
     total_exp = character["total_exp"]
+    current_streak = character["current_streak"]
+    max_streak = character["max_streak"]
     
     return CharacterResponse(
         username=username,
         level=level_player(total_exp), # Tu función de gamificación
         total_exp=total_exp,           # La XP real leída de SQLite
         exp_residue=exp_residue(total_exp), # Tu función de residuo
-        next_level_exp=XP_FOR_LEVEL
+        next_level_exp=XP_FOR_LEVEL,
+        current_streak=current_streak,
+        max_streak=max_streak
     )
