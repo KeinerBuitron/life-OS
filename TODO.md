@@ -71,4 +71,4 @@
                                                            │
                                                            ▼
                                                     [ SQLite DB ]
-                                                 (persistencia real)
+                                                    (persistencia real)
