@@ -1,0 +1,97 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Virtual environments
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage
+.pytest_cache/
+*.cover
+.coverage
+coverage.xml
+htmlcov/
+
+# Mypy / caching
+.mypy_cache/
+.cache/
+
+# Django stuff (if present)
+*.log
+local_settings.py
+db.sqlite3
+
+# Flask/other local files
+instance/
+.webassets-cache
+
+# Environment variables and secrets
+.env
+.env.*
+secrets.yml
+
+# Database files
+*.sqlite3
+*.db
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# VS Code
+.vscode/
+
+# JetBrains IDEs
+.idea/
+*.iml
+
+# PyCharm caches
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/dictionaries
+.idea/**/shelf
+
+# Editor temporary files
+*~
+*.swp
+
+# Logs
+*.log
+
+# Gradle / Android
+android/.gradle/
+android/local.properties
+android/.cxx/
+android/build/
+android/app/build/
+.gradle/
+
+# Node (in case frontend or Android JS modules exist)
+node_modules/
+
+# Generated files
+*.class
+*.jar
+*.war
+
+# Misc
+Thumbs.db
+
