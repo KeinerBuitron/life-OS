@@ -4,8 +4,6 @@ from fastapi import FastAPI
 from app.routers import character, quests
 from fastapi.middleware.cors import CORSMiddleware
 
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Se ejecuta al arrancar el servidor
