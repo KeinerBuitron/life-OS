@@ -11,10 +11,10 @@ import retrofit2.http.Path;
 
 public interface ApiService {
 
-    @GET("character/profile")
+    @GET("character/Profile")
     Call<CharacterResponse> getProfile();
 
-    @GET("quests")
+    @GET("/quests")
     Call<List<QuestResponse>> getQuests();
 
     @PATCH("quests/{id}/complete")

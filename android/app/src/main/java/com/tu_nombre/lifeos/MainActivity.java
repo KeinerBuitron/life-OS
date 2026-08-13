@@ -55,12 +55,14 @@ public class MainActivity extends AppCompatActivity {
                     tvTotalExp.setText("EXP Total: " + hero.getTotalExp());
                     tvCurrentStreak.setText("🔥 Racha Actual: " + hero.getCurrentStreak() + " días");
                     tvMaxStreak.setText("🏆 Racha Máxima: " + hero.getMaxStreak() + " días");
+                } else {
+                    Toast.makeText(MainActivity.this, "HTTP Error Perfil: " + response.code(), Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<CharacterResponse> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "Error al cargar perfil", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Fallo Perfil: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -71,12 +73,14 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<List<QuestResponse>> call, Response<List<QuestResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     adapter.setQuests(response.body());
+                } else {
+                    Toast.makeText(MainActivity.this, "HTTP Error Misiones: " + response.code(), Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<QuestResponse>> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "Error al cargar misiones", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Fallo Misiones: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -94,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<QuestResponse> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "No se pudo completar la misión", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "No se pudo completar: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

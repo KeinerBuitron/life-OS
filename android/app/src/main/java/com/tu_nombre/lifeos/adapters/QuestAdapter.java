@@ -46,7 +46,7 @@ public class QuestAdapter extends RecyclerView.Adapter<QuestAdapter.QuestViewHol
         holder.tvTitle.setText(quest.getTitle());
         holder.tvExp.setText("+" + quest.getExperience() + " EXP");
 
-        if (quest.getState() == 1) {
+        if (quest.isState()) {   // O quest.getState() si tu getter se llama así
             holder.btnComplete.setText("Completada");
             holder.btnComplete.setEnabled(false);
         } else {
